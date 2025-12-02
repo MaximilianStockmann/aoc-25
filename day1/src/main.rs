@@ -26,6 +26,7 @@ fn main() {
         let clicks = instruction.parse::<i32>().unwrap();
 
         dial_number = turn_dial(dial_number, clicks, direction);
+        println!("Current dial number: {:?}", dial_number);
 
         if dial_number == 0 {
             zeroes += 1
@@ -36,25 +37,25 @@ fn main() {
 }
 
 fn turn_dial(dial_number: i32, steps: i32, direction: i32) -> i32 {
-    let result = match dial_number + steps * direction {
-        n @ i32::MIN..=-1 => {
-            if steps > 100 {
-                n + ((steps / 100) * 100)
-            } else {
-                n + 100
+    let result = dial_number + steps * direction;
+
+    match result {
+        mut n @ i32::MIN..=-1 => {
+            while n < 0 {
+                n += 100
             }
+
+            n
         }
         n @ 0..=99 => n,
-        n @ 100..=i32::MAX => {
-            if steps > 100 {
-                n - ((steps / 100) * 100)
-            } else {
-                n - 100
+        mut n @ 100..=i32::MAX => {
+            while n > 99 {
+                n -= 100
             }
-        }
-    };
 
-    result
+            n
+        }
+    }
 }
 
 fn read_input() -> Vec<String> {
