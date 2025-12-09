@@ -25,23 +25,20 @@ fn main() {
 
         let clicks = instruction.parse::<i32>().unwrap();
 
-        dial_number = turn_dial(dial_number, clicks, direction);
+        dial_number = turn_dial(dial_number, clicks, direction, &mut zeroes);
         println!("Current dial number: {:?}", dial_number);
-
-        if dial_number == 0 {
-            zeroes += 1
-        }
     }
 
     println!("This many 0s were counted: {:?}", zeroes)
 }
 
-fn turn_dial(dial_number: i32, steps: i32, direction: i32) -> i32 {
+fn turn_dial(dial_number: i32, steps: i32, direction: i32, zeroes: &mut i32) -> i32 {
     let result = dial_number + steps * direction;
 
     match result {
         mut n @ i32::MIN..=-1 => {
             while n < 0 {
+                *zeroes += 1;
                 n += 100
             }
 
@@ -50,6 +47,7 @@ fn turn_dial(dial_number: i32, steps: i32, direction: i32) -> i32 {
         n @ 0..=99 => n,
         mut n @ 100..=i32::MAX => {
             while n > 99 {
+                *zeroes += 1;
                 n -= 100
             }
 
