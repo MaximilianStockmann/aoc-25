@@ -4,6 +4,7 @@
 // Invalid IDs are any IDs which is made only of some sequence of digits repeated twice
 // None of the numbers have leading zeroes
 // Output: The sum of invalid product ID within the input ranges
+// Part 2: Identify IDs made only of some sequence of digits repeated twice or more
 
 #[derive(Debug)]
 struct Range {
@@ -26,6 +27,8 @@ fn main() {
         invalid_id_sum += invalid_ids.iter().sum::<u64>();
     }
 
+    // 3144178030664991 too high
+    // 677082379 too low
     println!("Sum: {:?}", invalid_id_sum);
 }
 
@@ -36,10 +39,8 @@ fn get_invalid_ids(range: Range) -> Vec<u64> {
         // convenient shorthand for digit count
         let digit_count = num.clone().checked_ilog10().unwrap_or(0) + 1;
 
-        if digit_count % 2 == 0 {
-            if is_invalid_id(num, digit_count) {
-                invalid_ids.push(num);
-            }
+        if is_invalid_id(num, digit_count) {
+            invalid_ids.push(num);
         }
     }
 
@@ -49,27 +50,36 @@ fn get_invalid_ids(range: Range) -> Vec<u64> {
 fn is_invalid_id(num: u64, digit_count: u32) -> bool {
     let num = num.to_string();
 
-    // let mut sequences_to_check: Vec<String> = vec![];
+    let mut sequences_to_check: Vec<String> = vec![];
 
-    let (first_half, second_half) = num.split_at((digit_count / 2).try_into().unwrap());
+    for i in (1..=digit_count / 2).rev() {
+        let num_copy = num.clone();
+        let (first_half, _) = num_copy.split_at(i.try_into().unwrap());
+        sequences_to_check.push(first_half.to_string());
+    }
 
-    // println!(
-    //     "First half: {:?} | Second half: {:?}",
-    //     first_half, second_half
-    // );
+    for sequence in sequences_to_check {
+        let is_n_multiple = usize::try_from(digit_count).unwrap() % sequence.len() == 0;
+        let mut number_parts = vec![];
 
-    if first_half.eq(second_half) {
-        return true;
+        if is_n_multiple {
+            let num_copy = num.clone();
+            number_parts = num_copy
+                .chars()
+                .collect::<Vec<char>>()
+                .chunks(sequence.len())
+                .map(|c| c.iter().collect::<String>())
+                .collect::<Vec<String>>();
+        } else {
+            number_parts.push(0.to_string());
+        }
+
+        if number_parts.iter().all(|part| *part == sequence) {
+            return true;
+        }
     }
 
     false
-
-    // for i in (1..=digit_count / 2).rev() {
-    //     let num_copy = num.clone();
-    //     let (first_half, _) = num_copy.split_at(i.try_into().unwrap());
-    //     sequences_to_check.push(first_half.to_string());
-
-    // }
 }
 
 fn read_input() -> Vec<Range> {
